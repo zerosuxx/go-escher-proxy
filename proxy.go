@@ -11,7 +11,7 @@ import (
 	"os"
 )
 
-const VERSION = "0.0.3"
+const VERSION = "0.0.4"
 
 func main() {
 	addr := flag.String("addr", "0.0.0.0:8181", "Proxy listen address")
@@ -31,14 +31,17 @@ func main() {
 
 	proxy.OnRequest().DoFunc(
 		func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+			r.Header.Set("Host", r.Host)
+			r.Header.Del("Proxy-Connection")
+
 			escherSigner := escher.Escher(getEscherConfig(accessKeyId, apiSecret, credentialScope))
 			escherRequest := getEscherRequest(r)
 
 			signedEscherRequest := escherSigner.SignRequest(escherRequest, []string{"host"})
-			assignHeaders(r, signedEscherRequest.Headers)
+			assignHeaders(r.Header, signedEscherRequest.Headers)
 
 			if *isVerbose {
-				log.Println(signedEscherRequest)
+				log.Println("Headers:", r.Header)
 			}
 
 			return r, nil
@@ -61,11 +64,18 @@ func getEscherConfig(accessKeyId *string, apiSecret *string, credentialScope *st
 	}
 }
 
+func getEscherRequest(r *http.Request) escher.EscherRequest {
+	return escher.EscherRequest{
+		Method:  r.Method,
+		Url:     r.URL.String(),
+		Headers: extractHeaders(r.Header),
+		Body:    getBodyAsString(r.Body),
+	}
+}
+
 func extractHeaders(header http.Header) [][2]string {
 	var headers [][2]string
-	var headersToSign []string
 	for name, values := range header {
-		headersToSign = append(headersToSign, name)
 		for _, value := range values {
 			headers = append(headers, [2]string{name, value})
 		}
@@ -84,17 +94,8 @@ func getBodyAsString(body io.ReadCloser) string {
 	return bodyBuffer.String()
 }
 
-func getEscherRequest(r *http.Request) escher.EscherRequest {
-	return escher.EscherRequest{
-		Method:  r.Method,
-		Url:     r.URL.String(),
-		Headers: extractHeaders(r.Header),
-		Body:    getBodyAsString(r.Body),
-	}
-}
-
-func assignHeaders(r *http.Request, headers escher.EscherRequestHeaders) {
-	for _, header := range headers {
-		r.Header.Set(header[0], header[1])
+func assignHeaders(header http.Header, escherRequestHeaders escher.EscherRequestHeaders) {
+	for _, escherRequestHeader := range escherRequestHeaders {
+		header.Set(escherRequestHeader[0], escherRequestHeader[1])
 	}
 }
