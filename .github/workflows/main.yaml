@@ -14,10 +14,10 @@ jobs:
         uses: actions/checkout@v2
       - name: Run build
         run: |
-          - go build -o build/escher-proxy-linux-amd64 proxy.go
-          - GOARCH=arm64 go build -o build/escher-proxy-linux-arm64 proxy.go
-          - GOOS=windows go build -o build/escher-proxy-windows-amd64.exe proxy.go
-          - GOOS=darwin go build -o build/escher-proxy-darwin-amd64 proxy.go
+          GOARCH=linux go build -o build/escher-proxy-linux-amd64 proxy.go
+          GOARCH=arm64 go build -o build/escher-proxy-linux-arm64 proxy.go
+          GOOS=windows go build -o build/escher-proxy-windows-amd64.exe proxy.go
+          GOOS=darwin go build -o build/escher-proxy-darwin-amd64 proxy.go
       - name: Run build
         uses: actions/upload-artifact@v2
         with:
