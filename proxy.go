@@ -11,7 +11,7 @@ import (
 	"os"
 )
 
-const VERSION = "0.0.5"
+const VERSION = "0.0.6"
 
 func main() {
 	addr := flag.String("addr", "0.0.0.0:8181", "Proxy listen address")
@@ -72,7 +72,7 @@ func getEscherConfig(accessKeyId *string, apiSecret *string, credentialScope *st
 func getEscherRequest(r *http.Request) escher.EscherRequest {
 	return escher.EscherRequest{
 		Method:  r.Method,
-		Url:     r.URL.String(),
+		Url:     r.URL.Path,
 		Headers: extractHeaders(r.Header),
 		Body:    getBodyAsString(r.Body),
 	}
