@@ -11,13 +11,14 @@ import (
 	"os"
 )
 
-const VERSION = "0.0.4"
+const VERSION = "0.0.5"
 
 func main() {
 	addr := flag.String("addr", "0.0.0.0:8181", "Proxy listen address")
 	accessKeyId := flag.String("key", "", "Key name (required)")
 	apiSecret := flag.String("secret", "", "Secret key (required)")
 	credentialScope := flag.String("scope", "eu/suite/ems_request", "Credential scope")
+	isHttpsForced := flag.Bool("https", true, "Force Https")
 	isVerbose := flag.Bool("v", false, "Verbose")
 	flag.Parse()
 
@@ -31,6 +32,10 @@ func main() {
 
 	proxy.OnRequest().DoFunc(
 		func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+			if *isHttpsForced && r.Header.Get("X-Disable-Force-Https") != "1" {
+				r.URL.Scheme = "https"
+			}
+
 			r.Header.Set("Host", r.Host)
 			r.Header.Del("Proxy-Connection")
 
@@ -41,7 +46,7 @@ func main() {
 			assignHeaders(r.Header, signedEscherRequest.Headers)
 
 			if *isVerbose {
-				log.Println("Headers:", r.Header)
+				log.Println("Headers", r.Header)
 			}
 
 			return r, nil
