@@ -37,6 +37,8 @@ func main() {
 
 			escherConfig := jsonConfig.getEscherConfigByHost(r.Host)
 			if escherConfig == nil {
+				log.Println("Escher config not found for given host: " + r.Host)
+
 				return r, nil
 			}
 
@@ -89,7 +91,6 @@ func (j *JsonConfig) getEscherConfigByHost(host string) *EscherConfig {
 		}
 	}
 
-	log.Panicln("Escher config not found for given host: " + host)
 	return nil
 }
 
