@@ -1,187 +1,41 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"flag"
 	"github.com/elazarl/goproxy"
-	"github.com/emartech/escher-go"
-	"io"
-	"io/ioutil"
+	"github.com/zerosuxx/go-escher-proxy/config"
+	"github.com/zerosuxx/go-escher-proxy/handler"
 	"log"
 	"net/http"
-	"os"
 )
 
-const VERSION = "0.1.2"
+const VERSION = "0.2.0"
 const ConfigFile = ".proxy-config.json"
 
 func main() {
-	jsonConfig := loadJsonConfig(ConfigFile)
-
-	addr := flag.String("addr", "0.0.0.0:8181", "Proxy listen address")
-	isHttpsForced := flag.Bool("https", true, "Force Https")
-	isVerbose := flag.Bool("v", false, "Verbose")
-	flag.Parse()
+	appConfig := config.AppConfig{}
+	appConfig.LoadFromArgument()
+	appConfig.LoadFromJsonFile(ConfigFile)
 
 	proxy := goproxy.NewProxyHttpServer()
-	proxy.Verbose = *isVerbose
+	proxy.Verbose = *appConfig.Verbose
+
+	proxy.NonproxyHandler = http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
+		webRequestHandler := handler.WebRequest{
+			AppConfig: appConfig,
+		}
+
+		webRequestHandler.Handle(request, responseWriter)
+	})
 
 	proxy.OnRequest().DoFunc(
-		func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-			if *isHttpsForced && r.Header.Get("X-Disable-Force-Https") != "1" {
-				r.URL.Scheme = "https"
+		func(request *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+			proxy := handler.ProxyRequest{
+				AppConfig: appConfig,
 			}
 
-			r.Header.Set("Host", r.Host)
-
-			escherConfig := jsonConfig.getEscherConfigByHost(r.Host)
-			if escherConfig == nil {
-				log.Println("Escher config not found for given host: " + r.Host)
-
-				return r, nil
-			}
-
-			escherSigner := escher.Escher(
-				getEscherConfig(
-					&escherConfig.AccessKeyId,
-					&escherConfig.ApiSecret,
-					escherConfig.GetCredentialScope(),
-				),
-			)
-			signedEscherRequest := escherSigner.SignRequest(getEscherRequest(r), []string{"host"})
-			assignHeaders(r.Header, signedEscherRequest.Headers)
-
-			if *isVerbose {
-				log.Println("Headers", r.Header)
-			}
-
-			return r, nil
+			return proxy.Handle(request, ctx)
 		})
 
-	log.Println("Escher Pr0xy " + VERSION + " | Listening on: " + *addr)
-	log.Fatal(http.ListenAndServe(*addr, proxy))
-}
-
-func loadJsonConfig(file string) JsonConfig {
-	var jsonConfig JsonConfig
-
-	if _, err := os.Stat(file); err == nil {
-		jsonData := readFromFile(file)
-
-		var jsonError error
-		jsonConfig, jsonError = getJsonConfig(jsonData)
-
-		if jsonError != nil {
-			log.Println("Invalid json config file: " + jsonError.Error())
-		}
-	}
-
-	return jsonConfig
-}
-
-type EscherConfig struct {
-	Host            string
-	AccessKeyId     string
-	ApiSecret       string
-	CredentialScope string
-}
-
-func (e *EscherConfig) GetCredentialScope() *string {
-	if e.CredentialScope == "" {
-		credentialScope := "eu/suite/ems_request"
-
-		return &credentialScope
-	}
-
-	return &e.CredentialScope
-}
-
-type JsonConfig struct {
-	KeyDB []EscherConfig
-}
-
-func (j *JsonConfig) getEscherConfigByHost(host string) *EscherConfig {
-	for _, escherConfig := range j.KeyDB {
-		if host == escherConfig.Host {
-			return &escherConfig
-		}
-	}
-
-	return nil
-}
-
-func readFromFile(file string) []byte {
-	jsonFile, err := os.Open(file)
-
-	if err != nil {
-		return []byte("")
-	}
-
-	jsonData, _ := ioutil.ReadAll(jsonFile)
-
-	return jsonData
-}
-
-func getEscherConfig(accessKeyId *string, apiSecret *string, credentialScope *string) escher.EscherConfig {
-	return escher.EscherConfig{
-		VendorKey:       "Escher",
-		AlgoPrefix:      "EMS",
-		HashAlgo:        "SHA256",
-		AuthHeaderName:  "X-Ems-Auth",
-		DateHeaderName:  "X-Ems-Date",
-		AccessKeyId:     *accessKeyId,
-		ApiSecret:       *apiSecret,
-		CredentialScope: *credentialScope,
-	}
-}
-
-func getJsonConfig(jsonData []byte) (JsonConfig, error) {
-	var jsonConfig JsonConfig
-
-	err := json.Unmarshal(jsonData, &jsonConfig)
-
-	return jsonConfig, err
-}
-
-func getEscherRequest(r *http.Request) escher.EscherRequest {
-	url := r.URL.Path
-	query := r.URL.RawQuery
-	if query != "" {
-		url += "?" + query
-	}
-
-	return escher.EscherRequest{
-		Method:  r.Method,
-		Url:     url,
-		Headers: extractHeaders(r.Header),
-		Body:    getBodyAsString(r.Body),
-	}
-}
-
-func extractHeaders(header http.Header) [][2]string {
-	var headers [][2]string
-	for name, values := range header {
-		for _, value := range values {
-			headers = append(headers, [2]string{name, value})
-		}
-	}
-
-	return headers
-}
-
-func getBodyAsString(body io.ReadCloser) string {
-	bodyBuffer := new(bytes.Buffer)
-	_, err := bodyBuffer.ReadFrom(body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return bodyBuffer.String()
-}
-
-func assignHeaders(header http.Header, escherRequestHeaders escher.EscherRequestHeaders) {
-	for _, escherRequestHeader := range escherRequestHeaders {
-		header.Set(escherRequestHeader[0], escherRequestHeader[1])
-	}
+	log.Println("Escher Pr0xy " + VERSION + " | Listening on: " + *appConfig.Host)
+	log.Fatal(http.ListenAndServe(*appConfig.Host, proxy))
 }
