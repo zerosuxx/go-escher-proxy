@@ -35,8 +35,8 @@ jobs:
         with:
           name: escher-proxy-binaries
       - name: Checkout code
-      - uses: actions/checkout@v2
-      - run: |
+        uses: actions/checkout@v2
+        run: |
           set -x
           tag_name="${GITHUB_REF##*/}"
           assets=()
