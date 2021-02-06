@@ -12,9 +12,12 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: '1.15.7'
+      - name: Install dependencies
+        run: make install
+      - name: Run lint check
+        run: make lint
       - name: Run build
         run: |
-          go get -d ./...
           GOOS=linux GOARCH=amd64 go build -o build/escher-proxy-linux-amd64 proxy.go
           GOOS=linux GOARCH=arm64 go build -o build/escher-proxy-linux-arm64 proxy.go
           GOOS=windows go build -o build/escher-proxy-windows-amd64.exe proxy.go
