@@ -10,3 +10,6 @@ install:
 
 build:
 	go build -o build/escher-proxy-bin proxy.go
+
+run:
+	go run proxy.go

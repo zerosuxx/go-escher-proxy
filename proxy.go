@@ -2,30 +2,27 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"
 	"github.com/elazarl/goproxy"
 	"github.com/emartech/escher-go"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 )
 
-const VERSION = "0.0.7"
+const VERSION = "0.1.0"
 
 func main() {
+	jsonData := readFromFile(".proxy-config.json")
+	jsonConfig := getJsonConfig(jsonData)
+
 	addr := flag.String("addr", "0.0.0.0:8181", "Proxy listen address")
-	accessKeyId := flag.String("key", "", "Key name (required)")
-	apiSecret := flag.String("secret", "", "Secret key (required)")
-	credentialScope := flag.String("scope", "eu/suite/ems_request", "Credential scope")
 	isHttpsForced := flag.Bool("https", true, "Force Https")
 	isVerbose := flag.Bool("v", false, "Verbose")
 	flag.Parse()
-
-	if *accessKeyId == "" || *apiSecret == "" {
-		flag.Usage()
-		os.Exit(1)
-	}
 
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Verbose = *isVerbose
@@ -35,14 +32,22 @@ func main() {
 			if *isHttpsForced && r.Header.Get("X-Disable-Force-Https") != "1" {
 				r.URL.Scheme = "https"
 			}
-
 			r.Header.Set("Host", r.Host)
 			r.Header.Del("Proxy-Connection")
 
-			escherSigner := escher.Escher(getEscherConfig(accessKeyId, apiSecret, credentialScope))
-			escherRequest := getEscherRequest(r)
+			escherConfig := jsonConfig.getEscherConfigByHost(r.Host)
+			if escherConfig == nil {
+				return r, nil
+			}
 
-			signedEscherRequest := escherSigner.SignRequest(escherRequest, []string{"host"})
+			escherSigner := escher.Escher(
+				getEscherConfig(
+					&escherConfig.AccessKeyId,
+					&escherConfig.ApiSecret,
+					escherConfig.GetCredentialScope(),
+				),
+			)
+			signedEscherRequest := escherSigner.SignRequest(getEscherRequest(r), []string{"host"})
 			assignHeaders(r.Header, signedEscherRequest.Headers)
 
 			if *isVerbose {
@@ -56,6 +61,50 @@ func main() {
 	log.Fatal(http.ListenAndServe(*addr, proxy))
 }
 
+type EscherConfig struct {
+	Host            string
+	AccessKeyId     string
+	ApiSecret       string
+	CredentialScope string
+}
+
+func (e *EscherConfig) GetCredentialScope() *string {
+	if e.CredentialScope == "" {
+		credentialScope := "eu/suite/ems_request"
+
+		return &credentialScope
+	}
+
+	return &e.CredentialScope
+}
+
+type JsonConfig struct {
+	KeyDB []EscherConfig
+}
+
+func (j *JsonConfig) getEscherConfigByHost(host string) *EscherConfig {
+	for _, escherConfig := range j.KeyDB {
+		if host == escherConfig.Host {
+			return &escherConfig
+		}
+	}
+
+	log.Panicln("Escher config not found for given host: " + host)
+	return nil
+}
+
+func readFromFile(file string) []byte {
+	jsonFile, err := os.Open(file)
+
+	if err != nil {
+		return []byte("")
+	}
+
+	jsonData, _ := ioutil.ReadAll(jsonFile)
+
+	return jsonData
+}
+
 func getEscherConfig(accessKeyId *string, apiSecret *string, credentialScope *string) escher.EscherConfig {
 	return escher.EscherConfig{
 		VendorKey:       "Escher",
@@ -67,6 +116,18 @@ func getEscherConfig(accessKeyId *string, apiSecret *string, credentialScope *st
 		ApiSecret:       *apiSecret,
 		CredentialScope: *credentialScope,
 	}
+}
+
+func getJsonConfig(jsonData []byte) JsonConfig {
+	var jsonConfig JsonConfig
+
+	err := json.Unmarshal(jsonData, &jsonConfig)
+
+	if err != nil {
+		log.Println("Invalid json config file: " + err.Error())
+	}
+
+	return jsonConfig
 }
 
 func getEscherRequest(r *http.Request) escher.EscherRequest {
