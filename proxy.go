@@ -13,11 +13,11 @@ import (
 	"os"
 )
 
-const VERSION = "0.1.0"
+const VERSION = "0.1.1"
+const ConfigFile = ".proxy-config.json"
 
 func main() {
-	jsonData := readFromFile(".proxy-config.json")
-	jsonConfig := getJsonConfig(jsonData)
+	jsonConfig := loadJsonConfig(ConfigFile)
 
 	addr := flag.String("addr", "0.0.0.0:8181", "Proxy listen address")
 	isHttpsForced := flag.Bool("https", true, "Force Https")
@@ -61,6 +61,23 @@ func main() {
 
 	log.Println("Escher Pr0xy " + VERSION + " | Listening on: " + *addr)
 	log.Fatal(http.ListenAndServe(*addr, proxy))
+}
+
+func loadJsonConfig(file string) JsonConfig {
+	var jsonConfig JsonConfig
+
+	if _, err := os.Stat(file); err == nil {
+		jsonData := readFromFile(file)
+
+		var jsonError error
+		jsonConfig, jsonError = getJsonConfig(jsonData)
+
+		if jsonError != nil {
+			log.Println("Invalid json config file: " + jsonError.Error())
+		}
+	}
+
+	return jsonConfig
 }
 
 type EscherConfig struct {
@@ -119,16 +136,12 @@ func getEscherConfig(accessKeyId *string, apiSecret *string, credentialScope *st
 	}
 }
 
-func getJsonConfig(jsonData []byte) JsonConfig {
+func getJsonConfig(jsonData []byte) (JsonConfig, error) {
 	var jsonConfig JsonConfig
 
 	err := json.Unmarshal(jsonData, &jsonConfig)
 
-	if err != nil {
-		log.Println("Invalid json config file: " + err.Error())
-	}
-
-	return jsonConfig
+	return jsonConfig, err
 }
 
 func getEscherRequest(r *http.Request) escher.EscherRequest {
