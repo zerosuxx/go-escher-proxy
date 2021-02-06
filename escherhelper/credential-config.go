@@ -1,22 +1,25 @@
 package escherhelper
 
-import "github.com/emartech/escher-go"
+import (
+	"github.com/emartech/escher-go"
+)
 
 type CredentialConfig struct {
 	Host            string
 	AccessKeyID     string
 	APISecret       string
 	CredentialScope string
+	Date            string
 }
 
-func (config *CredentialConfig) GetCredentialScope() *string {
+func (config *CredentialConfig) GetCredentialScope() string {
 	if config.CredentialScope == "" {
 		credentialScope := "eu/suite/ems_request"
 
-		return &credentialScope
+		return credentialScope
 	}
 
-	return &config.CredentialScope
+	return config.CredentialScope
 }
 
 func (config *CredentialConfig) GetEscherConfig() escher.EscherConfig {
@@ -28,6 +31,7 @@ func (config *CredentialConfig) GetEscherConfig() escher.EscherConfig {
 		DateHeaderName:  "X-Ems-Date",
 		AccessKeyId:     config.AccessKeyID,
 		ApiSecret:       config.APISecret,
-		CredentialScope: *config.GetCredentialScope(),
+		CredentialScope: config.GetCredentialScope(),
+		Date:            config.Date,
 	}
 }
