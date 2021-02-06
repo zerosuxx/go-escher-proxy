@@ -27,14 +27,13 @@ func main() {
 		webRequestHandler.Handle(request, responseWriter)
 	})
 
-	proxy.OnRequest().DoFunc(
-		func(request *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-			proxy := handler.ProxyRequest{
-				AppConfig: appConfig,
-			}
+	proxy.OnRequest().DoFunc(func(request *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+		proxy := handler.ProxyRequest{
+			AppConfig: appConfig,
+		}
 
-			return proxy.Handle(request, ctx)
-		})
+		return proxy.Handle(request, ctx)
+	})
 
 	log.Println("Escher Pr0xy " + VERSION + " | Listening on: " + *appConfig.ListenAddress)
 	log.Fatal(http.ListenAndServe(*appConfig.ListenAddress, proxy))
