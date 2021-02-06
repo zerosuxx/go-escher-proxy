@@ -11,7 +11,7 @@ import (
 
 type WebRequest struct {
 	AppConfig config.AppConfig
-	Client    http.Client
+	Client    httphelper.Client
 }
 
 func (web *WebRequest) Handle(request *http.Request, responseWriter http.ResponseWriter) {
@@ -47,8 +47,8 @@ func (web *WebRequest) Handle(request *http.Request, responseWriter http.Respons
 		log.Println("Escher config not found for given host: " + newRequest.Host)
 	}
 
-	if *web.AppConfig.Verbose {
-		log.Println("ListenAddress", newRequest.Host)
+	if web.AppConfig.Verbose {
+		log.Println("Host", newRequest.Host)
 		log.Println("Headers", newRequest.Header)
 	}
 
