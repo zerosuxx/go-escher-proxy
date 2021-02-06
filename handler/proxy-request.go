@@ -15,7 +15,7 @@ type ProxyRequest struct {
 }
 
 func (proxy *ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-	if *proxy.AppConfig.ForcedHTTPS && request.Header.Get("X-Disable-Force-Https") != "1" {
+	if proxy.AppConfig.ForcedHTTPS && request.Header.Get("X-Disable-Force-Https") != "1" {
 		request.URL.Scheme = "https"
 	}
 
@@ -32,7 +32,7 @@ func (proxy *ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*
 	signedEscherRequest := escherSigner.SignRequest(escherhelper.RequestFactory(request), []string{"host"})
 	httphelper.AssignHeaders(request.Header, signedEscherRequest.Headers)
 
-	if *proxy.AppConfig.Verbose {
+	if proxy.AppConfig.Verbose {
 		log.Println("Headers", request.Header)
 	}
 
