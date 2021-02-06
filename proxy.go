@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	const VERSION = "0.2.0"
+	const VERSION = "0.2.1"
 	const ConfigFile = ".proxy-config.json"
 
 	appConfig := config.AppConfig{}
@@ -22,6 +22,7 @@ func main() {
 	proxy.NonproxyHandler = http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 		webRequestHandler := handler.WebRequest{
 			AppConfig: appConfig,
+			Client:    http.Client{},
 		}
 
 		webRequestHandler.Handle(request, responseWriter)

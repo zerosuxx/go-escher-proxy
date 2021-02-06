@@ -11,10 +11,10 @@ import (
 
 type WebRequest struct {
 	AppConfig config.AppConfig
+	Client    http.Client
 }
 
 func (web *WebRequest) Handle(request *http.Request, responseWriter http.ResponseWriter) {
-	client := &http.Client{}
 	targetURL := request.Header.Get("X-Target-Url")
 
 	if targetURL == "" {
@@ -34,7 +34,7 @@ func (web *WebRequest) Handle(request *http.Request, responseWriter http.Respons
 
 	newRequest.Header = request.Header
 	newRequest.Header.Del("X-Target-Url")
-	newRequest.Header.Set("ListenAddress", url.Host)
+	newRequest.Header.Set("Host", url.Host)
 	newRequest.Body = request.Body
 
 	escherConfig := web.AppConfig.FindCredentialConfigByHost(newRequest.Host)
@@ -52,7 +52,7 @@ func (web *WebRequest) Handle(request *http.Request, responseWriter http.Respons
 		log.Println("Headers", newRequest.Header)
 	}
 
-	clientResponse, clientErr := client.Do(newRequest)
+	clientResponse, clientErr := web.Client.Do(newRequest)
 	if clientErr != nil {
 		panic(clientErr)
 	}
