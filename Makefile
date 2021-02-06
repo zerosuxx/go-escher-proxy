@@ -7,7 +7,7 @@ help: ## Show this help
 
 install: ## Install the binary
 	go get -d ./...
- go get -u golang.org/x/lint/golint
+	go get -u golang.org/x/lint/golint
 
 build: ## Build the application
 	go build -o build/escher-proxy-bin proxy.go
