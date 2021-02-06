@@ -15,7 +15,9 @@ jobs:
       - name: Install dependencies
         run: make install
       - name: Run lint check
-        run: make lint
+        run: |
+          go get -u golang.org/x/lint/golint
+          make lint
       - name: Run build
         run: |
           GOOS=linux GOARCH=amd64 go build -o build/escher-proxy-linux-amd64 proxy.go
