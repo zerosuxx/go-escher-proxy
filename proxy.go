@@ -13,7 +13,7 @@ import (
 	"os"
 )
 
-const VERSION = "0.1.1"
+const VERSION = "0.1.2"
 const ConfigFile = ".proxy-config.json"
 
 func main() {
@@ -32,8 +32,8 @@ func main() {
 			if *isHttpsForced && r.Header.Get("X-Disable-Force-Https") != "1" {
 				r.URL.Scheme = "https"
 			}
+
 			r.Header.Set("Host", r.Host)
-			r.Header.Del("Proxy-Connection")
 
 			escherConfig := jsonConfig.getEscherConfigByHost(r.Host)
 			if escherConfig == nil {
