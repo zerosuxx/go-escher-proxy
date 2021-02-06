@@ -34,6 +34,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: escher-proxy-binaries
+          path: build/
       - name: Uploaded binaries as release assets
         run: |
           set -x
