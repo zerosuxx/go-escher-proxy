@@ -15,15 +15,15 @@ type WebRequest struct {
 
 func (web *WebRequest) Handle(request *http.Request, responseWriter http.ResponseWriter) {
 	client := &http.Client{}
-	proxyUrl := request.Header.Get("X-Target-Url")
+	targetURL := request.Header.Get("X-Target-Url")
 
-	if proxyUrl == "" {
+	if targetURL == "" {
 		responseWriter.WriteHeader(500)
 
 		return
 	}
 
-	url, parseErr := request.URL.Parse(proxyUrl)
+	url, parseErr := request.URL.Parse(targetURL)
 	if parseErr != nil {
 		panic(parseErr)
 	}
@@ -34,7 +34,7 @@ func (web *WebRequest) Handle(request *http.Request, responseWriter http.Respons
 
 	newRequest.Header = request.Header
 	newRequest.Header.Del("X-Target-Url")
-	newRequest.Header.Set("Host", url.Host)
+	newRequest.Header.Set("ListenAddress", url.Host)
 	newRequest.Body = request.Body
 
 	escherConfig := web.AppConfig.FindCredentialConfigByHost(newRequest.Host)
@@ -48,7 +48,7 @@ func (web *WebRequest) Handle(request *http.Request, responseWriter http.Respons
 	}
 
 	if *web.AppConfig.Verbose {
-		log.Println("Host", newRequest.Host)
+		log.Println("ListenAddress", newRequest.Host)
 		log.Println("Headers", newRequest.Header)
 	}
 

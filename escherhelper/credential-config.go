@@ -4,8 +4,8 @@ import "github.com/emartech/escher-go"
 
 type CredentialConfig struct {
 	Host            string
-	AccessKeyId     string
-	ApiSecret       string
+	AccessKeyID     string
+	APISecret       string
 	CredentialScope string
 }
 
@@ -26,8 +26,8 @@ func (config *CredentialConfig) GetEscherConfig() escher.EscherConfig {
 		HashAlgo:        "SHA256",
 		AuthHeaderName:  "X-Ems-Auth",
 		DateHeaderName:  "X-Ems-Date",
-		AccessKeyId:     config.AccessKeyId,
-		ApiSecret:       config.ApiSecret,
+		AccessKeyId:     config.AccessKeyID,
+		ApiSecret:       config.APISecret,
 		CredentialScope: *config.GetCredentialScope(),
 	}
 }

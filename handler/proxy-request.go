@@ -15,11 +15,11 @@ type ProxyRequest struct {
 }
 
 func (proxy *ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-	if *proxy.AppConfig.ForcedHttps && request.Header.Get("X-Disable-Force-Https") != "1" {
+	if *proxy.AppConfig.ForcedHTTPS && request.Header.Get("X-Disable-Force-Https") != "1" {
 		request.URL.Scheme = "https"
 	}
 
-	request.Header.Set("Host", request.Host)
+	request.Header.Set("ListenAddress", request.Host)
 
 	credentialConfig := proxy.AppConfig.FindCredentialConfigByHost(request.Host)
 	if credentialConfig == nil {
