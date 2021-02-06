@@ -22,7 +22,7 @@ func main() {
 	proxy.NonproxyHandler = http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 		webRequestHandler := handler.WebRequest{
 			AppConfig: appConfig,
-			Client:    http.Client{},
+			Client:    &http.Client{},
 		}
 
 		webRequestHandler.Handle(request, responseWriter)
