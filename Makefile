@@ -14,5 +14,8 @@ build: ## Build the application
 run: ## Run the application
 	go run proxy.go -v
 
+test: ## Run tests
+	go test
+
 lint: ## Check lint errors
 	golint -set_exit_status=1 -min_confidence=1.1 ./...
