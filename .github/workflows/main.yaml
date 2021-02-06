@@ -35,6 +35,8 @@ jobs:
         with:
           name: escher-proxy-binaries
           path: build/
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Uploaded binaries as release assets
         run: |
           set -x
