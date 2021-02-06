@@ -43,8 +43,7 @@ jobs:
           tag_name="${GITHUB_REF##*/}"
           assets=()
           for binary in ./build/*; do
-            cp "$binary" "${binary}-${tag_name}"
-            assets+=("-a" "${binary}-${tag_name}")
+            assets+=("-a" "${binary}")
           done
           hub release edit "${assets[@]}" -m "$tag_name" "$tag_name"
         env:
