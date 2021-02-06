@@ -12,4 +12,4 @@ build:
 	go build -o build/escher-proxy-bin proxy.go
 
 run:
-	go run proxy.go
+	go run proxy.go -v
