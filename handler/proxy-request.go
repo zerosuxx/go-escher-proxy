@@ -19,7 +19,7 @@ func (proxy *ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*
 		request.URL.Scheme = "https"
 	}
 
-	request.Header.Set("ListenAddress", request.Host)
+	request.Header.Set("Host", request.Host)
 
 	credentialConfig := proxy.AppConfig.FindCredentialConfigByHost(request.Host)
 	if credentialConfig == nil {
