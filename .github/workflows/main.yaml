@@ -41,7 +41,7 @@ jobs:
           assets=()
           for binary in ./build/*; do
             cp "$binary" "${binary}-${tag_name}"
-            assets+=("-a" "${binary}-${tag_name}"")
+            assets+=("-a" "${binary}-${tag_name}")
           done
           hub release create "${assets[@]}" -m "$tag_name" "$tag_name"
         env:
