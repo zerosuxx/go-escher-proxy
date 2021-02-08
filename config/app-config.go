@@ -12,9 +12,9 @@ import (
 // AppConfig base application config
 type AppConfig struct {
 	KeyDB         []escherhelper.CredentialConfig
-	ListenAddress string
-	Verbose       bool
-	ForcedHTTPS   bool
+	ListenAddress *string
+	Verbose       *bool
+	ForcedHTTPS   *bool
 }
 
 // FindCredentialConfigByHost Find Escher Credential by host
@@ -41,9 +41,9 @@ func (appConfig *AppConfig) LoadFromJSONFile(jsonFile string) {
 
 // LoadFromArgument Load Config from argument (ListenAddress, ForcedHTTPS, Verbose)
 func (appConfig *AppConfig) LoadFromArgument() {
-	appConfig.ListenAddress = *flag.String("addr", "0.0.0.0:8181", "Proxy server listen address")
-	appConfig.ForcedHTTPS = *flag.Bool("https", true, "Force Https")
-	appConfig.Verbose = *flag.Bool("v", false, "Verbose")
+	appConfig.ListenAddress = flag.String("addr", "0.0.0.0:8181", "Proxy server listen address")
+	appConfig.Verbose = flag.Bool("v", false, "Verbose")
+	appConfig.ForcedHTTPS = flag.Bool("https", true, "Force Https")
 
 	flag.Parse()
 }

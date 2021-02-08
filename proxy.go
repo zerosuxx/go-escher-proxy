@@ -9,15 +9,18 @@ import (
 )
 
 func main() {
-	const VERSION = "0.2.3"
+	const VERSION = "0.2.4"
 	const ConfigFile = ".proxy-config.json"
 
 	appConfig := config.AppConfig{}
 	appConfig.LoadFromArgument()
 	appConfig.LoadFromJSONFile(ConfigFile)
 
+	log.Println(*appConfig.Verbose)
+	log.Println(*appConfig.ForcedHTTPS)
+
 	proxy := goproxy.NewProxyHttpServer()
-	proxy.Verbose = appConfig.Verbose
+	proxy.Verbose = *appConfig.Verbose
 
 	proxy.NonproxyHandler = http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 		webRequestHandler := handler.WebRequest{
@@ -36,6 +39,6 @@ func main() {
 		return proxy.Handle(request, ctx)
 	})
 
-	log.Println("Escher Pr0xy " + VERSION + " | Listening on: " + appConfig.ListenAddress)
-	log.Fatal(http.ListenAndServe(appConfig.ListenAddress, proxy))
+	log.Println("Escher Pr0xy " + VERSION + " | Listening on: " + *appConfig.ListenAddress)
+	log.Fatal(http.ListenAndServe(*appConfig.ListenAddress, proxy))
 }

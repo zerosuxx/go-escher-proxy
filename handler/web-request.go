@@ -47,7 +47,7 @@ func (web *WebRequest) Handle(request *http.Request, responseWriter http.Respons
 		log.Println("Escher config not found for given host: " + newRequest.Host)
 	}
 
-	if web.AppConfig.Verbose {
+	if *web.AppConfig.Verbose {
 		log.Println("Host", newRequest.Host)
 		log.Println("Headers", newRequest.Header)
 	}
