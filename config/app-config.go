@@ -9,17 +9,30 @@ import (
 	"os"
 )
 
-// AppConfig base application config
 type AppConfig struct {
-	KeyDB         []escherhelper.CredentialConfig
+	KeyDB         *[]escherhelper.CredentialConfig
 	ListenAddress *string
 	Verbose       *bool
 	ForcedHTTPS   *bool
 }
 
-// FindCredentialConfigByHost Find Escher Credential by host
+func NewAppConfig(
+	keyDB []escherhelper.CredentialConfig,
+	listenAddress string,
+	verbose bool,
+	forceHTTPS bool,
+) AppConfig {
+	appConfig := AppConfig{}
+	appConfig.KeyDB = &keyDB
+	appConfig.ListenAddress = &listenAddress
+	appConfig.Verbose = &verbose
+	appConfig.ForcedHTTPS = &forceHTTPS
+
+	return appConfig
+}
+
 func (appConfig *AppConfig) FindCredentialConfigByHost(host string) *escherhelper.CredentialConfig {
-	for _, credentialConfig := range appConfig.KeyDB {
+	for _, credentialConfig := range *appConfig.KeyDB {
 		if host == credentialConfig.Host {
 			return &credentialConfig
 		}
@@ -28,7 +41,6 @@ func (appConfig *AppConfig) FindCredentialConfigByHost(host string) *escherhelpe
 	return nil
 }
 
-// LoadFromJSONFile Load Config from JSON file
 func (appConfig *AppConfig) LoadFromJSONFile(jsonFile string) {
 	if _, err := os.Stat(jsonFile); err == nil {
 		jsonData := readFromFile(jsonFile)
@@ -39,7 +51,6 @@ func (appConfig *AppConfig) LoadFromJSONFile(jsonFile string) {
 	}
 }
 
-// LoadFromArgument Load Config from argument (ListenAddress, ForcedHTTPS, Verbose)
 func (appConfig *AppConfig) LoadFromArgument() {
 	appConfig.ListenAddress = flag.String("addr", "0.0.0.0:8181", "Proxy server listen address")
 	appConfig.Verbose = flag.Bool("v", false, "Verbose")

@@ -25,12 +25,7 @@ func TestWebRequestWithoutXTargetUrlHeaderReturns500(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://localhost", nil)
 	w := httptest.NewRecorder()
 
-	appConfig := config.AppConfig{
-		KeyDB:         nil,
-		ListenAddress: "localhost:1234",
-		Verbose:       false,
-		ForcedHTTPS:   false,
-	}
+	appConfig := config.NewAppConfig(nil, "localhost:1234", false, false)
 
 	webRequest := handler.WebRequest{
 		AppConfig: appConfig,
@@ -50,9 +45,6 @@ func TestWebRequestWithXTargetUrlHeaderReturns200(t *testing.T) {
 		response: http.Response{StatusCode: 200},
 	}
 
-	appConfig := config.AppConfig{}
-	appConfig.Verbose = false
-
 	var credentials []escherhelper.CredentialConfig
 	credentials = append(credentials, escherhelper.CredentialConfig{
 		Host:            "escher.url",
@@ -61,7 +53,9 @@ func TestWebRequestWithXTargetUrlHeaderReturns200(t *testing.T) {
 		CredentialScope: "eu/test/scope",
 		Date:            "2011-03-11T15:59:01.888888Z",
 	})
-	appConfig.KeyDB = credentials
+
+	appConfig := config.NewAppConfig(credentials, "http://localhost", false, false)
+	appConfig.KeyDB = &credentials
 
 	webRequest := handler.WebRequest{
 		AppConfig: appConfig,
