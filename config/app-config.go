@@ -32,6 +32,10 @@ func NewAppConfig(
 }
 
 func (appConfig *AppConfig) FindCredentialConfigByHost(host string) *escherhelper.CredentialConfig {
+	if appConfig.KeyDB == nil {
+		return nil
+	}
+
 	for _, credentialConfig := range *appConfig.KeyDB {
 		if host == credentialConfig.Host {
 			return &credentialConfig
