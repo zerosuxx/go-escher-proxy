@@ -28,8 +28,10 @@ func (proxy *ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*
 		return request, nil
 	}
 
+	escherRequestFactory := escherhelper.RequestFactory{}
+	escherRequest := escherRequestFactory.CreateFromCredentialConfig(request, credentialConfig)
 	escherSigner := escher.Escher(credentialConfig.GetEscherConfig())
-	signedEscherRequest := escherSigner.SignRequest(escherhelper.RequestFactory(request), []string{"host"})
+	signedEscherRequest := escherSigner.SignRequest(escherRequest, []string{"host"})
 	httphelper.AssignHeaders(request.Header, signedEscherRequest.Headers)
 
 	if *proxy.AppConfig.Verbose {

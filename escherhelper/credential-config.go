@@ -5,11 +5,12 @@ import (
 )
 
 type CredentialConfig struct {
-	Host            string
-	AccessKeyID     string
-	APISecret       string
-	CredentialScope string
-	Date            string
+	Host             string
+	DisableBodyCheck bool
+	AccessKeyID      string
+	APISecret        string
+	CredentialScope  string
+	Date             string
 }
 
 func (config *CredentialConfig) GetCredentialScope() string {

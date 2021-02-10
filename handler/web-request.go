@@ -37,10 +37,15 @@ func (web *WebRequest) Handle(request *http.Request, responseWriter http.Respons
 	newRequest.Header.Set("Host", url.Host)
 	newRequest.Body = request.Body
 
-	escherConfig := web.AppConfig.FindCredentialConfigByHost(newRequest.Host)
-	if escherConfig != nil {
-		escherSigner := escher.Escher(escherConfig.GetEscherConfig())
-		signedEscherRequest := escherSigner.SignRequest(escherhelper.RequestFactory(newRequest), []string{"host"})
+	credentialConfig := web.AppConfig.FindCredentialConfigByHost(newRequest.Host)
+	if credentialConfig != nil {
+		escherRequestFactory := escherhelper.RequestFactory{}
+		escherRequest := escherRequestFactory.CreateFromCredentialConfig(request, credentialConfig)
+		escherSigner := escher.Escher(credentialConfig.GetEscherConfig())
+		signedEscherRequest := escherSigner.SignRequest(
+			escherRequest,
+			[]string{"host"},
+		)
 
 		httphelper.AssignHeaders(newRequest.Header, signedEscherRequest.Headers)
 	} else {

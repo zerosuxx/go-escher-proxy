@@ -15,6 +15,9 @@ build: ## Build the application
 run: ## Run the application
 	go run proxy.go -v
 
+run-insecure: ## Run the application without force https
+	go run proxy.go -v -https=0
+
 test: ## Run tests
 	go test
 
