@@ -40,7 +40,7 @@ func (web *WebRequest) Handle(request *http.Request, responseWriter http.Respons
 	credentialConfig := web.AppConfig.FindCredentialConfigByHost(newRequest.Host)
 	if credentialConfig != nil {
 		escherRequestFactory := escherhelper.RequestFactory{}
-		escherRequest := escherRequestFactory.CreateFromCredentialConfig(request, credentialConfig)
+		escherRequest := escherRequestFactory.CreateFromCredentialConfig(newRequest, credentialConfig)
 		escherSigner := escher.Escher(credentialConfig.GetEscherConfig())
 		signedEscherRequest := escherSigner.SignRequest(
 			escherRequest,
@@ -53,8 +53,8 @@ func (web *WebRequest) Handle(request *http.Request, responseWriter http.Respons
 	}
 
 	if *web.AppConfig.Verbose {
-		log.Println("Host", newRequest.Host)
-		log.Println("Headers", newRequest.Header)
+		log.Println("Request Host", newRequest.Host)
+		log.Println("Request Headers", newRequest.Header)
 	}
 
 	clientResponse, clientErr := web.Client.Do(newRequest)

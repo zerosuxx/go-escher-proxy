@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	const VERSION = "0.3.0"
+	const VERSION = "0.3.1"
 	const ConfigFile = ".proxy-config.json"
 
 	appConfig := config.AppConfig{}
