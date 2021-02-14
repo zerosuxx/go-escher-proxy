@@ -162,3 +162,29 @@ func TestPostWebRequestWithDisabledBodyCheckReturns200(t *testing.T) {
 		requestHeader.Get("x-ems-auth"),
 	)
 }
+
+func TestProxyRequestWithForceHttpModifyRequestScheme(t *testing.T) {
+	request := httptest.NewRequest("GET", "http://localhost", nil)
+
+	appConfig := config.NewAppConfig(nil, "localhost:1234", false, true)
+
+	proxyRequest := handler.ProxyRequest{
+		AppConfig: appConfig,
+	}
+
+	proxyRequest.Handle(request, nil)
+	assert.Equal(t, "https", request.URL.Scheme)
+}
+
+func TestProxyRequestSetRequestHostHeader(t *testing.T) {
+	request := httptest.NewRequest("GET", "http://localhost", nil)
+
+	appConfig := config.NewAppConfig(nil, "localhost:1234", false, true)
+
+	proxyRequest := handler.ProxyRequest{
+		AppConfig: appConfig,
+	}
+
+	proxyRequest.Handle(request, nil)
+	assert.Equal(t, "localhost", request.Header.Get("Host"))
+}
