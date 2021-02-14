@@ -2,7 +2,7 @@ package escherhelper
 
 import (
 	"github.com/emartech/escher-go"
-	"github.com/zerosuxx/go-escher-proxy/httphelper"
+	"github.com/zerosuxx/go-escher-proxy/pkg/httphelper"
 	"net/http"
 )
 

@@ -2,14 +2,14 @@ package main
 
 import (
 	"github.com/elazarl/goproxy"
-	"github.com/zerosuxx/go-escher-proxy/config"
-	"github.com/zerosuxx/go-escher-proxy/handler"
+	"github.com/zerosuxx/go-escher-proxy/pkg/config"
+	"github.com/zerosuxx/go-escher-proxy/pkg/handler"
 	"log"
 	"net/http"
 )
 
 func main() {
-	const VERSION = "0.3.1"
+	const VERSION = "0.4.0"
 	const ConfigFile = ".proxy-config.json"
 
 	appConfig := config.AppConfig{}

@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/zerosuxx/go-escher-proxy/config"
-	"github.com/zerosuxx/go-escher-proxy/escherhelper"
-	"github.com/zerosuxx/go-escher-proxy/handler"
+	"github.com/zerosuxx/go-escher-proxy/pkg/config"
+	"github.com/zerosuxx/go-escher-proxy/pkg/escherhelper"
+	"github.com/zerosuxx/go-escher-proxy/pkg/handler"
 	"net/http"
 	"net/http/httptest"
 	"strings"

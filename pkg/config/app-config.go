@@ -3,7 +3,7 @@ package config
 import (
 	"encoding/json"
 	"flag"
-	"github.com/zerosuxx/go-escher-proxy/escherhelper"
+	"github.com/zerosuxx/go-escher-proxy/pkg/escherhelper"
 	"io/ioutil"
 	"log"
 	"os"

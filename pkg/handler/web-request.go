@@ -2,9 +2,9 @@ package handler
 
 import (
 	"github.com/emartech/escher-go"
-	"github.com/zerosuxx/go-escher-proxy/config"
-	"github.com/zerosuxx/go-escher-proxy/escherhelper"
-	"github.com/zerosuxx/go-escher-proxy/httphelper"
+	"github.com/zerosuxx/go-escher-proxy/pkg/config"
+	"github.com/zerosuxx/go-escher-proxy/pkg/escherhelper"
+	"github.com/zerosuxx/go-escher-proxy/pkg/httphelper"
 	"log"
 	"net/http"
 )
