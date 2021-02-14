@@ -29,5 +29,5 @@ proxy -h
 
 ## Config (.proxy-config.json)
 ```
-{"keyDB": [{"host": "api.emarsys.net", "accessKeyId": "app_suite_v1","apiSecret": "secret", "credentialScope": "eu/suite/ems_request"}]}
+{"keyDB": [{"host": "api.emarsys.net", "disableBodyCheck": true, "accessKeyId": "app_suite_v1","apiSecret": "secret", "credentialScope": "eu/suite/ems_request"}]}
 ```
