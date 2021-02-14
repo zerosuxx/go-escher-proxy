@@ -19,7 +19,7 @@ run-insecure: ## Run the application without force https
 	go run proxy.go -v -https=0
 
 test: ## Run tests
-	go test
+	go test ./...
 
 lint: ## Check lint errors
 	golint -set_exit_status=1 -min_confidence=1.1 ./...
