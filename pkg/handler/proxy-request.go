@@ -14,7 +14,7 @@ type ProxyRequest struct {
 	AppConfig config.AppConfig
 }
 
-func (proxy *ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+func (proxy ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 	if *proxy.AppConfig.ForcedHTTPS && request.Header.Get("X-Disable-Force-Https") != "1" {
 		request.URL.Scheme = "https"
 	}
@@ -23,7 +23,7 @@ func (proxy *ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*
 
 	credentialConfig := proxy.AppConfig.FindCredentialConfigByHost(request.Host)
 	if credentialConfig == nil {
-		log.Println("Escher config not found for given host: " + request.Host)
+		proxy.logVerbose("Escher config not found for given host:", request.Host)
 
 		return request, nil
 	}
@@ -34,9 +34,13 @@ func (proxy *ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*
 	signedEscherRequest := escherSigner.SignRequest(escherRequest, []string{"host"})
 	httphelper.AssignHeaders(request.Header, signedEscherRequest.Headers)
 
-	if *proxy.AppConfig.Verbose {
-		log.Println("Headers", request.Header)
-	}
+	proxy.logVerbose("Headers", request.Header)
 
 	return request, nil
+}
+
+func (proxy ProxyRequest) logVerbose(key string, message interface{}) {
+	if *proxy.AppConfig.Verbose {
+		log.Println(key, message)
+	}
 }
