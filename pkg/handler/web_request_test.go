@@ -1,9 +1,10 @@
-package handler
+package handler_test
 
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/zerosuxx/go-escher-proxy/pkg/config"
 	"github.com/zerosuxx/go-escher-proxy/pkg/escherhelper"
+	"github.com/zerosuxx/go-escher-proxy/pkg/handler"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -25,7 +26,7 @@ func TestWebRequest_HandleWithoutTargetUrlReturns500(t *testing.T) {
 	request := httptest.NewRequest("GET", "http://localhost", nil)
 	responseRecorder := httptest.NewRecorder()
 
-	webRequest := WebRequest{}
+	webRequest := handler.WebRequest{}
 	webRequest.Handle(request, responseRecorder)
 
 	assert.Equal(t, 500, responseRecorder.Code)
@@ -42,7 +43,7 @@ func TestWebRequest_HandleWithTargetUrlRequestUrlModifiedReturns200(t *testing.T
 
 	appConfig := config.NewAppConfig(nil, "localhost:1234", false, false)
 
-	webRequest := WebRequest{
+	webRequest := handler.WebRequest{
 		AppConfig: appConfig,
 		Client:    clientMock,
 	}
@@ -75,7 +76,7 @@ func TestWebRequest_HandlePostWithEscherAuthenticationSetProperHeaders(t *testin
 	appConfig := config.NewAppConfig(credentials, "localhost:1234", false, false)
 	appConfig.KeyDB = &credentials
 
-	webRequest := WebRequest{
+	webRequest := handler.WebRequest{
 		AppConfig: appConfig,
 		Client:    clientMock,
 	}
@@ -115,7 +116,7 @@ func TestWebRequest_HandlePostWithEscherAuthenticationAndDisabledBodyCheckSetPro
 	appConfig := config.NewAppConfig(credentials, "localhost:1234", false, false)
 	appConfig.KeyDB = &credentials
 
-	webRequest := WebRequest{
+	webRequest := handler.WebRequest{
 		AppConfig: appConfig,
 		Client:    clientMock,
 	}

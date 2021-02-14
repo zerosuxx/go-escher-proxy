@@ -1,9 +1,10 @@
-package handler
+package handler_test
 
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/zerosuxx/go-escher-proxy/pkg/config"
 	"github.com/zerosuxx/go-escher-proxy/pkg/escherhelper"
+	"github.com/zerosuxx/go-escher-proxy/pkg/handler"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -14,7 +15,7 @@ func TestProxyRequest_HandleWithForceHttpModifyRequestScheme(t *testing.T) {
 
 	appConfig := config.NewAppConfig(nil, "localhost:1234", false, true)
 
-	proxyRequest := ProxyRequest{
+	proxyRequest := handler.ProxyRequest{
 		AppConfig: appConfig,
 	}
 
@@ -27,7 +28,7 @@ func TestProxyRequest_HandleSetRequestHostHeader(t *testing.T) {
 
 	appConfig := config.NewAppConfig(nil, "localhost:1234", false, true)
 
-	proxyRequest := ProxyRequest{
+	proxyRequest := handler.ProxyRequest{
 		AppConfig: appConfig,
 	}
 
@@ -49,7 +50,7 @@ func TestProxyRequest_HandleGetWithEscherAuthenticationSetProperHeaders(t *testi
 	appConfig := config.NewAppConfig(credentials, "localhost:1234", false, false)
 	appConfig.KeyDB = &credentials
 
-	proxyRequest := ProxyRequest{
+	proxyRequest := handler.ProxyRequest{
 		AppConfig: appConfig,
 	}
 
@@ -77,7 +78,7 @@ func TestProxyRequest_HandlePostWithEscherAuthenticationSetProperHeaders(t *test
 	appConfig := config.NewAppConfig(credentials, "localhost:1234", false, false)
 	appConfig.KeyDB = &credentials
 
-	proxyRequest := ProxyRequest{
+	proxyRequest := handler.ProxyRequest{
 		AppConfig: appConfig,
 	}
 
@@ -106,7 +107,7 @@ func TestProxyRequest_HandlePostWithEscherAuthenticationAndDisabledBodyCheckSetP
 	appConfig := config.NewAppConfig(credentials, "localhost:1234", false, false)
 	appConfig.KeyDB = &credentials
 
-	proxyRequest := ProxyRequest{
+	proxyRequest := handler.ProxyRequest{
 		AppConfig: appConfig,
 	}
 
