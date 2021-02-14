@@ -49,7 +49,9 @@ func (web *WebRequest) Handle(request *http.Request, responseWriter http.Respons
 
 		httphelper.AssignHeaders(newRequest.Header, signedEscherRequest.Headers)
 	} else {
-		log.Println("Escher config not found for given host: " + newRequest.Host)
+		if *web.AppConfig.Verbose {
+			log.Println("Escher config not found for given host: " + newRequest.Host)
+		}
 	}
 
 	if *web.AppConfig.Verbose {
