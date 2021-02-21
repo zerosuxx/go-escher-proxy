@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	const VERSION = "0.5.1"
-	const ConfigFile = ".proxy-config.json"
+	const VERSION = "0.5.2"
+	const ConfigFile = "proxy-config.json"
 
 	appConfig := config.AppConfig{}
 	appConfig.LoadFromArgument()
