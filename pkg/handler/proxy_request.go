@@ -41,7 +41,7 @@ func (proxy ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*h
 }
 
 func (proxy ProxyRequest) logVerbose(key string, message interface{}) {
-	if *proxy.AppConfig.Verbose {
+	if proxy.AppConfig.Verbose {
 		log.Println(key, message)
 	}
 }

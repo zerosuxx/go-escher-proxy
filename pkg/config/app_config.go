@@ -11,8 +11,8 @@ import (
 
 type AppConfig struct {
 	Sites         map[string]SiteConfig
-	ListenAddress *string
-	Verbose       *bool
+	ListenAddress string
+	Verbose       bool
 }
 
 type SiteConfig struct {
@@ -26,8 +26,8 @@ func NewAppConfig(
 ) AppConfig {
 	appConfig := AppConfig{}
 	appConfig.Sites = sites
-	appConfig.ListenAddress = &listenAddress
-	appConfig.Verbose = &verbose
+	appConfig.ListenAddress = listenAddress
+	appConfig.Verbose = verbose
 
 	return appConfig
 }
@@ -56,8 +56,8 @@ func (appConfig *AppConfig) LoadFromJSONFile(jsonFile string) {
 }
 
 func (appConfig *AppConfig) LoadFromArgument() {
-	appConfig.ListenAddress = flag.String("addr", "0.0.0.0:8181", "Proxy server listen address")
-	appConfig.Verbose = flag.Bool("v", false, "Verbose")
+	flag.StringVar(&appConfig.ListenAddress, "addr", "0.0.0.0:8181", "Proxy server listen address")
+	flag.BoolVar(&appConfig.Verbose, "v", false, "Verbose")
 
 	flag.Parse()
 }

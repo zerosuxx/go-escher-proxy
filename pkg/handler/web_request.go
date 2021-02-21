@@ -49,12 +49,12 @@ func (web WebRequest) Handle(request *http.Request, responseWriter http.Response
 
 		httphelper.AssignHeaders(newRequest.Header, signedEscherRequest.Headers)
 	} else {
-		if *web.AppConfig.Verbose {
+		if web.AppConfig.Verbose {
 			log.Println("Escher config not found for given host: " + newRequest.Host)
 		}
 	}
 
-	if *web.AppConfig.Verbose {
+	if web.AppConfig.Verbose {
 		log.Println("Request Host", newRequest.Host)
 		log.Println("Request Headers", newRequest.Header)
 	}
