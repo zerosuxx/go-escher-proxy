@@ -9,12 +9,12 @@ import (
 )
 
 func main() {
-	const VERSION = "0.6.1"
-	const ConfigFile = "proxy-config.json"
+	const VERSION = "0.6.2"
+	const configFile = "proxy-config.json"
 
 	appConfig := config.AppConfig{}
 	appConfig.LoadFromArgument()
-	appConfig.LoadFromJSONFile(ConfigFile)
+	appConfig.LoadFromJSONFile(configFile)
 
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Verbose = appConfig.Verbose
