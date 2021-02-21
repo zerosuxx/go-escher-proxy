@@ -6,14 +6,17 @@ import (
 	"github.com/zerosuxx/go-escher-proxy/pkg/handler"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
-	const VERSION = "0.6.2"
-	const configFile = "proxy-config.json"
+	const VERSION = "0.6.3"
+	const configFileName = "proxy-config.json"
 
 	appConfig := config.AppConfig{}
 	appConfig.LoadFromArgument()
+	path, _ := os.Getwd()
+	configFile := path + configFileName
 	appConfig.LoadFromJSONFile(configFile)
 
 	proxy := goproxy.NewProxyHttpServer()
