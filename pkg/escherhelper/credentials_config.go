@@ -4,8 +4,7 @@ import (
 	"github.com/emartech/escher-go"
 )
 
-type CredentialConfig struct {
-	Host             string
+type CredentialsConfig struct {
 	DisableBodyCheck bool
 	AccessKeyID      string
 	APISecret        string
@@ -13,17 +12,15 @@ type CredentialConfig struct {
 	Date             string
 }
 
-func (config *CredentialConfig) GetCredentialScope() string {
+func (config CredentialsConfig) GetCredentialScope() string {
 	if config.CredentialScope == "" {
-		credentialScope := "eu/suite/ems_request"
-
-		return credentialScope
+		return "eu/suite/ems_request"
 	}
 
 	return config.CredentialScope
 }
 
-func (config *CredentialConfig) GetEscherConfig() escher.EscherConfig {
+func (config CredentialsConfig) GetEscherConfig() escher.EscherConfig {
 	return escher.EscherConfig{
 		VendorKey:       "Escher",
 		AlgoPrefix:      "EMS",

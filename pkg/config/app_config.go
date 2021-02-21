@@ -10,36 +10,35 @@ import (
 )
 
 type AppConfig struct {
-	KeyDB         *[]escherhelper.CredentialConfig
+	Sites         map[string]SiteConfig
 	ListenAddress *string
 	Verbose       *bool
-	ForcedHTTPS   *bool
+}
+
+type SiteConfig struct {
+	EscherCredentials *escherhelper.CredentialsConfig
 }
 
 func NewAppConfig(
-	keyDB []escherhelper.CredentialConfig,
+	sites map[string]SiteConfig,
 	listenAddress string,
 	verbose bool,
-	forceHTTPS bool,
 ) AppConfig {
 	appConfig := AppConfig{}
-	appConfig.KeyDB = &keyDB
+	appConfig.Sites = sites
 	appConfig.ListenAddress = &listenAddress
 	appConfig.Verbose = &verbose
-	appConfig.ForcedHTTPS = &forceHTTPS
 
 	return appConfig
 }
 
-func (appConfig *AppConfig) FindCredentialConfigByHost(host string) *escherhelper.CredentialConfig {
-	if appConfig.KeyDB == nil {
+func (appConfig *AppConfig) FindCredentialConfigByHost(host string) *escherhelper.CredentialsConfig {
+	if appConfig.Sites == nil {
 		return nil
 	}
 
-	for _, credentialConfig := range *appConfig.KeyDB {
-		if host == credentialConfig.Host {
-			return &credentialConfig
-		}
+	if val, exists := appConfig.Sites[host]; exists {
+		return val.EscherCredentials
 	}
 
 	return nil
@@ -49,6 +48,7 @@ func (appConfig *AppConfig) LoadFromJSONFile(jsonFile string) {
 	if _, err := os.Stat(jsonFile); err == nil {
 		jsonData := readFromFile(jsonFile)
 		jsonError := json.Unmarshal(jsonData, appConfig)
+
 		if jsonError != nil {
 			log.Println(jsonError)
 		}
@@ -58,7 +58,6 @@ func (appConfig *AppConfig) LoadFromJSONFile(jsonFile string) {
 func (appConfig *AppConfig) LoadFromArgument() {
 	appConfig.ListenAddress = flag.String("addr", "0.0.0.0:8181", "Proxy server listen address")
 	appConfig.Verbose = flag.Bool("v", false, "Verbose")
-	appConfig.ForcedHTTPS = flag.Bool("https", true, "Force Https")
 
 	flag.Parse()
 }

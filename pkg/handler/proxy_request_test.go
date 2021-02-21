@@ -10,10 +10,10 @@ import (
 	"testing"
 )
 
-func TestProxyRequest_HandleWithForceHttpModifyRequestScheme(t *testing.T) {
-	request := httptest.NewRequest("GET", "http://localhost", nil)
+func TestProxyRequest_HandleWithNonLocalHostSchemeForcedToHttps(t *testing.T) {
+	request := httptest.NewRequest("GET", "http://example.com", nil)
 
-	appConfig := config.NewAppConfig(nil, "localhost:1234", false, true)
+	appConfig := config.NewAppConfig(map[string]config.SiteConfig{}, "localhost:1234", false)
 
 	proxyRequest := handler.ProxyRequest{
 		AppConfig: appConfig,
@@ -23,10 +23,37 @@ func TestProxyRequest_HandleWithForceHttpModifyRequestScheme(t *testing.T) {
 	assert.Equal(t, "https", request.URL.Scheme)
 }
 
+func TestProxyRequest_HandleWithLocalHostSchemeNotForcedToHttps(t *testing.T) {
+	request := httptest.NewRequest("GET", "http://localhost", nil)
+
+	appConfig := config.NewAppConfig(map[string]config.SiteConfig{}, "localhost:1234", false)
+
+	proxyRequest := handler.ProxyRequest{
+		AppConfig: appConfig,
+	}
+
+	proxyRequest.Handle(request, nil)
+	assert.Equal(t, "http", request.URL.Scheme)
+}
+
+func TestProxyRequest_HandleWithDisableForceHttpsHeaderNotForcedToHttps(t *testing.T) {
+	request := httptest.NewRequest("GET", "http://example.com", nil)
+	request.Header.Set("X-Disable-Force-Https", "1")
+
+	appConfig := config.NewAppConfig(map[string]config.SiteConfig{}, "localhost:1234", false)
+
+	proxyRequest := handler.ProxyRequest{
+		AppConfig: appConfig,
+	}
+
+	proxyRequest.Handle(request, nil)
+	assert.Equal(t, "http", request.URL.Scheme)
+}
+
 func TestProxyRequest_HandleSetRequestHostHeader(t *testing.T) {
 	request := httptest.NewRequest("GET", "http://localhost", nil)
 
-	appConfig := config.NewAppConfig(nil, "localhost:1234", false, true)
+	appConfig := config.NewAppConfig(map[string]config.SiteConfig{}, "localhost:1234", false)
 
 	proxyRequest := handler.ProxyRequest{
 		AppConfig: appConfig,
@@ -39,16 +66,17 @@ func TestProxyRequest_HandleSetRequestHostHeader(t *testing.T) {
 func TestProxyRequest_HandleGetWithEscherAuthenticationSetProperHeaders(t *testing.T) {
 	request := httptest.NewRequest("GET", "http://escher.url", nil)
 
-	var credentials []escherhelper.CredentialConfig
-	credentials = append(credentials, escherhelper.CredentialConfig{
-		Host:            "escher.url",
+	credentials := escherhelper.CredentialsConfig{
 		AccessKeyID:     "key",
 		APISecret:       "secret",
 		CredentialScope: "eu/test/scope",
 		Date:            "2011-03-11T15:59:01.888888Z",
-	})
-	appConfig := config.NewAppConfig(credentials, "localhost:1234", false, false)
-	appConfig.KeyDB = &credentials
+	}
+	sites := map[string]config.SiteConfig{}
+	sites["escher.url"] = config.SiteConfig{
+		EscherCredentials: &credentials,
+	}
+	appConfig := config.NewAppConfig(sites, "localhost:1234", false)
 
 	proxyRequest := handler.ProxyRequest{
 		AppConfig: appConfig,
@@ -67,16 +95,17 @@ func TestProxyRequest_HandlePostWithEscherAuthenticationSetProperHeaders(t *test
 	body := strings.NewReader("sample body")
 	request := httptest.NewRequest("POST", "http://escher.url", body)
 
-	var credentials []escherhelper.CredentialConfig
-	credentials = append(credentials, escherhelper.CredentialConfig{
-		Host:            "escher.url",
+	credentials := escherhelper.CredentialsConfig{
 		AccessKeyID:     "key",
 		APISecret:       "secret",
 		CredentialScope: "eu/test/scope",
 		Date:            "2011-03-11T15:59:01.888888Z",
-	})
-	appConfig := config.NewAppConfig(credentials, "localhost:1234", false, false)
-	appConfig.KeyDB = &credentials
+	}
+	sites := map[string]config.SiteConfig{}
+	sites["escher.url"] = config.SiteConfig{
+		EscherCredentials: &credentials,
+	}
+	appConfig := config.NewAppConfig(sites, "localhost:1234", false)
 
 	proxyRequest := handler.ProxyRequest{
 		AppConfig: appConfig,
@@ -95,17 +124,18 @@ func TestProxyRequest_HandlePostWithEscherAuthenticationAndDisabledBodyCheckSetP
 	body := strings.NewReader("sample body")
 	request := httptest.NewRequest("POST", "http://escher.url", body)
 
-	var credentials []escherhelper.CredentialConfig
-	credentials = append(credentials, escherhelper.CredentialConfig{
-		Host:             "escher.url",
+	credentials := escherhelper.CredentialsConfig{
 		AccessKeyID:      "key",
 		APISecret:        "secret",
 		CredentialScope:  "eu/test/scope",
 		Date:             "2011-03-11T15:59:01.888888Z",
 		DisableBodyCheck: true,
-	})
-	appConfig := config.NewAppConfig(credentials, "localhost:1234", false, false)
-	appConfig.KeyDB = &credentials
+	}
+	sites := map[string]config.SiteConfig{}
+	sites["escher.url"] = config.SiteConfig{
+		EscherCredentials: &credentials,
+	}
+	appConfig := config.NewAppConfig(sites, "localhost:1234", false)
 
 	proxyRequest := handler.ProxyRequest{
 		AppConfig: appConfig,

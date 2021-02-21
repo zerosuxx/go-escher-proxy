@@ -41,7 +41,7 @@ func TestWebRequest_HandleWithTargetUrlRequestUrlModifiedReturns200(t *testing.T
 		response: http.Response{StatusCode: 200},
 	}
 
-	appConfig := config.NewAppConfig(nil, "localhost:1234", false, false)
+	appConfig := config.NewAppConfig(map[string]config.SiteConfig{}, "localhost:1234", false)
 
 	webRequest := handler.WebRequest{
 		AppConfig: appConfig,
@@ -64,17 +64,17 @@ func TestWebRequest_HandlePostWithEscherAuthenticationSetProperHeaders(t *testin
 		response: http.Response{StatusCode: 200},
 	}
 
-	var credentials []escherhelper.CredentialConfig
-	credentials = append(credentials, escherhelper.CredentialConfig{
-		Host:            "escher.url",
+	credentials := escherhelper.CredentialsConfig{
 		AccessKeyID:     "key",
 		APISecret:       "secret",
 		CredentialScope: "eu/test/scope",
 		Date:            "2011-03-11T15:59:01.888888Z",
-	})
-
-	appConfig := config.NewAppConfig(credentials, "localhost:1234", false, false)
-	appConfig.KeyDB = &credentials
+	}
+	sites := map[string]config.SiteConfig{}
+	sites["escher.url"] = config.SiteConfig{
+		EscherCredentials: &credentials,
+	}
+	appConfig := config.NewAppConfig(sites, "localhost:1234", false)
 
 	webRequest := handler.WebRequest{
 		AppConfig: appConfig,
@@ -103,18 +103,18 @@ func TestWebRequest_HandlePostWithEscherAuthenticationAndDisabledBodyCheckSetPro
 		response: http.Response{StatusCode: 200},
 	}
 
-	var credentials []escherhelper.CredentialConfig
-	credentials = append(credentials, escherhelper.CredentialConfig{
-		Host:             "escher.url",
+	credentials := escherhelper.CredentialsConfig{
 		AccessKeyID:      "key",
 		APISecret:        "secret",
 		CredentialScope:  "eu/test/scope",
 		Date:             "2011-03-11T15:59:01.888888Z",
 		DisableBodyCheck: true,
-	})
-
-	appConfig := config.NewAppConfig(credentials, "localhost:1234", false, false)
-	appConfig.KeyDB = &credentials
+	}
+	sites := map[string]config.SiteConfig{}
+	sites["escher.url"] = config.SiteConfig{
+		EscherCredentials: &credentials,
+	}
+	appConfig := config.NewAppConfig(sites, "localhost:1234", false)
 
 	webRequest := handler.WebRequest{
 		AppConfig: appConfig,

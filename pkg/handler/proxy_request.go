@@ -8,6 +8,7 @@ import (
 	"github.com/zerosuxx/go-escher-proxy/pkg/httphelper"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type ProxyRequest struct {
@@ -15,7 +16,7 @@ type ProxyRequest struct {
 }
 
 func (proxy ProxyRequest) Handle(request *http.Request, _ *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-	if *proxy.AppConfig.ForcedHTTPS && request.Header.Get("X-Disable-Force-Https") != "1" {
+	if !strings.Contains(request.Host, "localhost") && request.Header.Get("X-Disable-Force-Https") != "1" {
 		request.URL.Scheme = "https"
 	}
 

@@ -15,6 +15,8 @@ make run
 ## Usage
 ```
 curl -x localhost:8181 http://api.emarsys.net # http forced to https by default
+curl -x localhost:8181 -H "X-Disable-Force-Https: 1" http://api.emarsys.net # http not forced to https
+curl -H 'X-Target-Url: https://api.emarsys.net' http://localhost:8181
 ```
 
 ## Build
@@ -27,7 +29,18 @@ make build
 proxy -h
 ```
 
-## Config (.proxy-config.json)
+## Config (proxy-config.json)
 ```
-{"keyDB": [{"host": "api.emarsys.net", "disableBodyCheck": true, "accessKeyId": "app_suite_v1","apiSecret": "secret", "credentialScope": "eu/suite/ems_request"}]}
+{
+  "sites": {
+    "api.emarsys.net": {
+      "escherCredentials": {
+        "disableBodyCheck": true,
+        "accessKeyId": "app_suite_v1",
+        "apiSecret": "dummySecret",
+        "credentialScope": "eu/suite/ems_request"
+      }
+    }
+  }
+}
 ```

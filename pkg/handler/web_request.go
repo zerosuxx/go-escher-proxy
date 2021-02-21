@@ -14,7 +14,7 @@ type WebRequest struct {
 	Client    httphelper.Client
 }
 
-func (web *WebRequest) Handle(request *http.Request, responseWriter http.ResponseWriter) {
+func (web WebRequest) Handle(request *http.Request, responseWriter http.ResponseWriter) {
 	targetURL := request.Header.Get("X-Target-Url")
 
 	if targetURL == "" {

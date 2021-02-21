@@ -9,15 +9,15 @@ import (
 type RequestFactory struct {
 }
 
-func (factory *RequestFactory) Create(request *http.Request) escher.EscherRequest {
+func (factory RequestFactory) Create(request *http.Request) escher.EscherRequest {
 	return createEscherRequest(request, string(httphelper.ReadBodyWithoutClear(httphelper.RequestBody{Request: request})))
 }
 
-func (factory *RequestFactory) CreateWithEmptyBody(request *http.Request) escher.EscherRequest {
+func (factory RequestFactory) CreateWithEmptyBody(request *http.Request) escher.EscherRequest {
 	return createEscherRequest(request, "")
 }
 
-func (factory *RequestFactory) CreateFromCredentialConfig(request *http.Request, config *CredentialConfig) escher.EscherRequest {
+func (factory RequestFactory) CreateFromCredentialConfig(request *http.Request, config *CredentialsConfig) escher.EscherRequest {
 	var escherRequest escher.EscherRequest
 	if config.DisableBodyCheck {
 		escherRequest = factory.CreateWithEmptyBody(request)
