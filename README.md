@@ -4,7 +4,7 @@
 
 ## Install
 ```
-make build
+make install
 ```
 
 ## Run
