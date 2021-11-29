@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Fetch git tags
+        run: git fetch --prune --unshallow --tags --progress
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
@@ -23,7 +25,7 @@ jobs:
         run: make lint
       - name: Run tests
         run: make test
-      - name: Run build for all support architectures
+      - name: Run build for all supported architectures
         run: make build-all
       - name: Create artifacts
         uses: actions/upload-artifact@v2
