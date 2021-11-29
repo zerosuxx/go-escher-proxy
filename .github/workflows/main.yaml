@@ -2,6 +2,9 @@ name: CI
 
 on: push
 
+env:
+  BINARY_NAME: escher-proxy
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,14 +23,8 @@ jobs:
         run: make lint
       - name: Run tests
         run: make test
-      - name: Run build
-        run: |
-          GOOS=linux GOARCH=amd64 go build -o build/escher-proxy-linux-amd64 proxy.go
-          GOOS=linux GOARCH=arm64 go build -o build/escher-proxy-linux-arm64 proxy.go
-          GOOS=windows GOARCH=386 go build -o build/escher-proxy-windows-i386.exe proxy.go
-          GOOS=windows go build -o build/escher-proxy-windows-amd64.exe proxy.go
-          GOOS=darwin go build -o build/escher-proxy-darwin-amd64 proxy.go
-          GOOS=darwin GOARCH=arm64 go build -o build/escher-proxy-darwin-arm64 proxy.go
+      - name: Run build for all support architectures
+        run: make build-all
       - name: Create artifacts
         uses: actions/upload-artifact@v2
         with:

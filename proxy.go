@@ -7,16 +7,30 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
+var Version = "development"
+
+func isDebugMode(version string) bool {
+	return version == "development"
+}
+
 func main() {
-	const VERSION = "0.6.5"
 	const configFileName = "proxy-config.json"
 
 	appConfig := config.AppConfig{}
 	appConfig.LoadFromArgument()
-	path, _ := os.Getwd()
-	configFile := path + "/" + configFileName
+
+	var configFile string
+	if isDebugMode(Version) {
+		currentWorkingPath, _ := os.Getwd()
+		configFile = currentWorkingPath + "/" + configFileName
+	} else {
+		currentScriptPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+		configFile = currentScriptPath + "/" + configFileName
+	}
+
 	appConfig.LoadFromJSONFile(configFile)
 
 	proxy := goproxy.NewProxyHttpServer()
@@ -39,6 +53,6 @@ func main() {
 		return proxy.Handle(request, ctx)
 	})
 
-	log.Println("Escher Pr0xy " + VERSION + " | Listening on: " + appConfig.ListenAddress)
+	log.Println("Escher Pr0xy " + Version + " | Listening on: " + appConfig.ListenAddress)
 	log.Fatal(http.ListenAndServe(appConfig.ListenAddress, proxy))
 }
