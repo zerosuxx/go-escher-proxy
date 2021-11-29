@@ -16,21 +16,34 @@ func isDebugMode(version string) bool {
 	return version == "development"
 }
 
+func getConfigPath(version string) string {
+	if isDebugMode(version)  {
+		currentWorkingPath, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+		
+		return currentWorkingPath
+	} else {
+		ex, err := os.Executable()
+		if err != nil {
+			panic(err)
+		}
+		
+		return filepath.Dir(ex)
+	}
+}
+
 func main() {
 	const configFileName = "proxy-config.json"
 
 	appConfig := config.AppConfig{}
 	appConfig.LoadFromArgument()
 
-	var configFile string
-	if isDebugMode(Version) {
-		currentWorkingPath, _ := os.Getwd()
-		configFile = currentWorkingPath + "/" + configFileName
-	} else {
-		currentScriptPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-		configFile = currentScriptPath + "/" + configFileName
+	configFile := getConfigPath(Version) + "/" + configFileName
+	if appConfig.Verbose {
+		log.Println("Try to loading config file: " + configFile)
 	}
-
 	appConfig.LoadFromJSONFile(configFile)
 
 	proxy := goproxy.NewProxyHttpServer()
