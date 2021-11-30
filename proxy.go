@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/elazarl/goproxy"
 	"github.com/zerosuxx/go-escher-proxy/pkg/config"
 	"github.com/zerosuxx/go-escher-proxy/pkg/handler"
@@ -17,19 +18,19 @@ func isDebugMode(version string) bool {
 }
 
 func getConfigPath(version string) string {
-	if isDebugMode(version)  {
+	if isDebugMode(version) {
 		currentWorkingPath, err := os.Getwd()
 		if err != nil {
 			panic(err)
 		}
-		
+
 		return currentWorkingPath
 	} else {
 		ex, err := os.Executable()
 		if err != nil {
 			panic(err)
 		}
-		
+
 		return filepath.Dir(ex)
 	}
 }
@@ -66,6 +67,6 @@ func main() {
 		return proxy.Handle(request, ctx)
 	})
 
-	log.Println("Escher Pr0xy " + Version + " | Listening on: " + appConfig.ListenAddress)
+	fmt.Println("Escher Pr0xy " + Version + " | Listening on: " + appConfig.ListenAddress)
 	log.Fatal(http.ListenAndServe(appConfig.ListenAddress, proxy))
 }
